@@ -1,28 +1,36 @@
+import 'package:basketball_counter_bloc/cubit/counter_cubit.dart';
+import 'package:basketball_counter_bloc/cubit/counter_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
   runApp(pointsCounter());
 }
 
-class pointsCounter extends StatefulWidget {
+class pointsCounter extends StatelessWidget {
   @override
-  State<pointsCounter> createState() => _pointsCounterState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (BuildContext context) {
+        return CounterCubit();
+      },
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: HomePage(),
+      ),
+    );
+  }
 }
 
-class _pointsCounterState extends State<pointsCounter> {
+class HomePage extends StatelessWidget {
+  HomePage({super.key});
   int teamAPoints = 0;
 
   int teamBPoints = 0;
-
-  void addOnePoint() {
-    print('add one point');
-  }
-
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
+    return BlocConsumer<CounterCubit, CounterState>(builder: (context, state) {
+      return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.orange,
           title: Text('Points Counter'),
@@ -57,9 +65,8 @@ class _pointsCounterState extends State<pointsCounter> {
                           minimumSize: Size(150, 50),
                         ),
                         onPressed: () {
-                          setState(() {
-                            teamAPoints++;
-                          });
+                          BlocProvider.of<CounterCubit>(context)
+                              .teamIncrement('a', 1);
                           print(teamAPoints);
                         },
                         child: Text(
@@ -76,9 +83,8 @@ class _pointsCounterState extends State<pointsCounter> {
                           minimumSize: Size(150, 50),
                         ),
                         onPressed: () {
-                          setState(() {
-                            teamAPoints += 2;
-                          });
+                          BlocProvider.of<CounterCubit>(context)
+                              .teamIncrement('a', 2);
                         },
                         child: Text(
                           'Add 2 Point',
@@ -94,9 +100,8 @@ class _pointsCounterState extends State<pointsCounter> {
                           minimumSize: Size(150, 50),
                         ),
                         onPressed: () {
-                          setState(() {
-                            teamAPoints += 3;
-                          });
+                          BlocProvider.of<CounterCubit>(context)
+                              .teamIncrement('a', 3);
                         },
                         child: Text(
                           'Add 3 Point ',
@@ -142,8 +147,8 @@ class _pointsCounterState extends State<pointsCounter> {
                           minimumSize: Size(150, 50),
                         ),
                         onPressed: () {
-                          setState(() {});
-                          teamBPoints++;
+                          BlocProvider.of<CounterCubit>(context)
+                              .teamIncrement('b', 1);
                         },
                         child: Text(
                           'Add 1 Point ',
@@ -159,8 +164,8 @@ class _pointsCounterState extends State<pointsCounter> {
                           minimumSize: Size(150, 50),
                         ),
                         onPressed: () {
-                          setState(() {});
-                          teamBPoints += 2;
+                          BlocProvider.of<CounterCubit>(context)
+                              .teamIncrement('b', 2);
                         },
                         child: Text(
                           'Add 2 Point ',
@@ -176,9 +181,8 @@ class _pointsCounterState extends State<pointsCounter> {
                           minimumSize: Size(150, 50),
                         ),
                         onPressed: () {
-                          setState(() {
-                            teamBPoints += 3;
-                          });
+                          BlocProvider.of<CounterCubit>(context)
+                              .teamIncrement('b', 3);
                         },
                         child: Text(
                           'Add 3 Point ',
@@ -199,12 +203,7 @@ class _pointsCounterState extends State<pointsCounter> {
                 backgroundColor: Colors.orange,
                 minimumSize: Size(150, 50),
               ),
-              onPressed: () {
-                setState(() {
-                  teamAPoints = 0;
-                  teamBPoints = 0;
-                });
-              },
+              onPressed: () {},
               child: Text(
                 'Reset',
                 style: TextStyle(
@@ -215,7 +214,13 @@ class _pointsCounterState extends State<pointsCounter> {
             ),
           ],
         ),
-      ),
-    );
+      );
+    }, listener: (context, state) {
+      if (state is CounterAIncrementState) {
+        teamAPoints = BlocProvider.of<CounterCubit>(context).teamAPoints;
+      } else {
+        teamBPoints = BlocProvider.of<CounterCubit>(context).teamBPoints;
+      }
+    });
   }
 }
